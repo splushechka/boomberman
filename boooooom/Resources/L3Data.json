@@ -1,0 +1,39 @@
+﻿{
+  "PlayerX": 1,
+  "PlayerY": 1,
+  "Threshold": 150,
+  "Height": 12,
+  "Width": 12,
+  "Enemies": [
+    {
+      "Type": "ChaoticEnemy",
+      "CurrentCoords": {
+        "X": 7,
+        "Y": 7
+      }
+    },
+    {
+      "Type": "LinearEnemy",
+      "IsHorizontal": true,
+      "CurrentCoords": {
+        "X": 6,
+        "Y": 6
+      }
+    },
+    {
+      "Type": "ChaoticEnemy",
+      "CurrentCoords": {
+        "X": 9,
+        "Y": 9
+      }
+    },
+    {
+      "Type": "LinearEnemy",
+      "IsHorizontal": false,
+      "CurrentCoords": {
+        "X": 5,
+        "Y": 4
+      }
+    }
+  ]
+}
