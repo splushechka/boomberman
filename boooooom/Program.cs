@@ -7,14 +7,12 @@ using boooooom.JsonConverters;
 using boooooom.Non_Entity_Classes;
 using boooooom.Serializable;
 using Action = boooooom.NonEntityClasses.Action;
-    
+
 namespace boooooom;
 
 public class Program
 {
-    //create main loop which will play through all the game process
-    //it will be used to create interface to talk to the code and select levels.
-    private static List<List<string>> _levels = new() 
+    private static List<List<string>> _levels = new()
     {
         new List<string>{"Resources/L1Layout.txt", "Resources/L1Data.json"},
         new List<string>{"Resources/L2Layout.txt","Resources/L2Data.json"},
@@ -22,29 +20,31 @@ public class Program
     };
 
     public static GameStatus Status { get; set; } = GameStatus.Paused;
-    
-    static void Main(string[] args)
+
+    static async Task Main(string[] args)
     {
         Console.Clear();
         Console.CursorVisible = false;
-        
+
+        await ShowSplashScreenAsync();
+
         var musicTask = new Task(() => MusicPlayer.Play());
         musicTask.Start();
-        
+
         while (Status != GameStatus.Finished)
         {
             Console.WriteLine("Bomberman");
-            
+
             Console.WriteLine("Press Space to start the Game!");
-            
+
             Console.WriteLine("Press T to get instructions!");
-            
+
             Console.WriteLine("Press R to close!");
-            
+
             var key = Console.ReadKey();
             Console.WriteLine();
-            
-            if (key.Key == ConsoleKey.R) 
+
+            if (key.Key == ConsoleKey.R)
             {
                 Status = GameStatus.Finished;
                 Thread.Sleep(1000);
@@ -58,39 +58,39 @@ public class Program
             {
                 Console.Clear();
                 var currentLevel = 0;
-                
+
                 var levelKey = ConsoleKey.Spacebar;
-                
+
                 while (levelKey != ConsoleKey.R)
                 {
                     Status = GameStatus.Active;
                     var result = GameLoop(_levels[currentLevel]);
-                    
+
                     Console.WriteLine("Select option");
-                    if (result && currentLevel != 3)
+                    if (result && currentLevel < _levels.Count - 1)
                     {
                         Console.WriteLine("Press Space to play next level");
                     }
                     Console.WriteLine("Press S to Replay this level");
-                    
-                    if (currentLevel != 0)
+
+                    if (currentLevel > 0)
                     {
                         Console.WriteLine("Press P to play previous level");
                     }
                     Console.WriteLine("Press R to exit");
-                    
+
                     levelKey = Console.ReadKey().Key;
-                    
+
                     if (levelKey == ConsoleKey.Spacebar)
                     {
-                        if (result && currentLevel <= 2)
+                        if (result && currentLevel < _levels.Count - 1)
                         {
                             currentLevel += 1;
                         }
                     }
                     else if (levelKey == ConsoleKey.P)
                     {
-                        currentLevel = currentLevel >= 1 ? currentLevel - 1 : currentLevel;
+                        currentLevel = currentLevel > 0 ? currentLevel - 1 : currentLevel;
                     }
                     else if (levelKey == ConsoleKey.S)
                     {
@@ -102,10 +102,36 @@ public class Program
                     }
                 }
             }
-            
+
             Console.Clear();
         }
     }
+
+    private static async Task ShowSplashScreenAsync()
+    {
+        Console.Clear();
+        Console.WriteLine("░░▄▄▄░░░░░░░░░░░░░░░░░░░░░░░░░░░░▄▄▄░░");
+        Console.WriteLine("░▄████▄░░░░░░░░░░░░░░░░░░░░░░░▄▄████▄░");
+        Console.WriteLine("░██░▀▀███▄▄░▄▄▄████████▄▄▄░▄▄███▀░███░");
+        Console.WriteLine("░██░░░░░▀███████▀████▀▀██████▀░░░░███░");
+        Console.WriteLine("░██▄░░░░░░░░░▀█▀░███░░░██▀▀░░░░░░░██▀░");
+        Console.WriteLine("░▀██▄▄░░░░░░░░░░░░▀░░░░▀░░░░░░░▄▄▄██░░");
+        Console.WriteLine("░░▀██▀░░░░░░░░░░░░░░░░░░░░░░░░░▀███▀░░");
+        Console.WriteLine("░░▄██░░░░░░░░░░░░░░░░░░░░░░░░░░░░██▄░░");
+        Console.WriteLine("░░████▀░░███░░░░░░░░░░░░░░███░░█████░░");
+        Console.WriteLine("░░███▀░░░█████░░░░░░░░░░█████░░░▀███░░");
+        Console.WriteLine("░░██░░░░░░▀▀▀▀░░░░░░░░░░▀▀▀▀░░░░░▀██░░");
+        Console.WriteLine("▄▄███▄▄▄▄░░░░░░░░░░░░░░░░░░░░▄▄▄▄███▄▄");
+        Console.WriteLine("░▄▄██▄▄░░░▄█░░░░▄▀▀▀▀▄░░░░█▄░░░▄███▄▄░");
+        Console.WriteLine("▀░░▄████▀▀▀▀░░░░░▀▄▄▀░░░░░▀▀▀▀████▄░░▀");
+        Console.WriteLine("░▄▀░░▀███▄▄░░░█▄▄█▀▀█▄▄▀░░░▄▄██▀░░░▀▄░");
+        Console.WriteLine("░░░░░░░░▀███▄▄░░░░░░░░░░▄▄███▀░░░░░░░░");
+        Console.WriteLine("░░░░░░░░░░▀▀████▄▄▄▄▄▄████▀▀░░░░░░░░░░");
+        Console.WriteLine("░░░░░░░░░░░░░░▀▀▀▀▀▀▀▀▀▀░░░░░░░░░░░░░░");
+        await Task.Delay(3000);
+        Console.Clear();
+    }
+
     private static void ShowInstructions()
     {
         Console.Clear();
@@ -158,7 +184,7 @@ public class Program
     {
         string layoutPath = pathes[0];
         string levelDataPath = pathes[1];
-        
+
         string jsonString = File.ReadAllText(levelDataPath);
         var options = new JsonSerializerOptions
         {
@@ -167,8 +193,8 @@ public class Program
         };
 
         var levelSettings = JsonSerializer.Deserialize<LevelSettings>(jsonString, options);
-        
-        var playerCoords = new Coordinates(levelSettings.PlayerX,  levelSettings.PlayerY);
+
+        var playerCoords = new Coordinates(levelSettings.PlayerX, levelSettings.PlayerY);
 
         var levelInit = new LevelInitializer();
         var field = levelInit.ParseField(levelSettings.Height, levelSettings.Width, layoutPath);
@@ -178,16 +204,16 @@ public class Program
             Field = field,
             PlayerCoords = playerCoords
         };
-        
+
         var player = new PlayerEntity();
 
         var playerLives = player.Lives;
-        
+
         Console.Clear();
         GameRender.Draw(field);
         GameRender.DrawScore(0, field.GetLength(0));
         GameRender.DrawLives(playerLives, field.GetLength(0));
-        
+
         while (!gameProcess.IsGameOver)
         {
             if (Console.KeyAvailable)
@@ -198,13 +224,13 @@ public class Program
                 gameProcess.Action = action;
             }
         }
-        
+
         gameProcess.Timer.StopTimer();
         Thread.Sleep(100);
         Status = GameStatus.Paused;
         Console.Clear();
         Console.WriteLine("Game over");
-        
+
         return gameProcess.Win;
     }
 }
