@@ -10,16 +10,16 @@ public class MusicPlayer
         while (Program.Status != GameStatus.Finished)
         {
             var music = new MusicPlayer();
-            music.PlayMusic(Program.Status);
+            music.PlayMusic();
             
-            while (Program.Status== GameStatus.Paused)
+            while (Program.Status == GameStatus.Paused)
             {
                 Thread.Sleep(1000);
             }
         }
     }
     
-    private void PlayMusic(GameStatus status)
+    private void PlayMusic()
     {
         var path = "Resources/Song.wav";
         
@@ -42,7 +42,7 @@ public class MusicPlayer
                     
                 if (outputDevice.PlaybackState == PlaybackState.Stopped)
                 {
-                    if (status == 0)
+                    if (Program.Status == 0)
                     {
                         audioFile.Seek(0, SeekOrigin.Begin);
                         outputDevice.Play();

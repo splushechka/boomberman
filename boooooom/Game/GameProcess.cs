@@ -38,7 +38,7 @@ public class GameProcess
         Timer = new GameTimer(MainLoop);
         Timer.StartTimer();
         WinningScoreThreshold = winningScoreThreshold;
-        Enemies = enemies; //[new ChaoticEnemy(new Coordinates(2, 5)), new LinearEnemy(true, new Coordinates(3, 2))];
+        Enemies = enemies;
     }
     
     private void RefreshEnemies()
@@ -85,9 +85,7 @@ public class GameProcess
                         currentCell.EntitiesOnCell.Remove(enemy);
                         newCell.EntitiesOnCell.Add(enemy);
                         enemy.CurrentCoords = newCoords;
-
-
-
+      
                         changedCells.Add((currentCoords, currentCell));
                         changedCells.Add((newCoords, newCell));
                     }
@@ -109,23 +107,23 @@ public class GameProcess
                 {
                     foreach (var entity in playerCell.EntitiesOnCell)
                     {
-                        if (entity is PlayerEntity player)
+                        if (entity is PlayerEntity playerEntity)
                         {
-                            player.MinusLiveEntity();
+                            playerEntity.MinusLiveEntity();
                             break;
                         }
                     }
 
-                    var clonedPlayer = playerCell.EntitiesOnCell.Find(e => e.GetEntityType() == ActiveEntityType.Player)?.Clone();
-                    Field[playerStartCoords.Y, playerStartCoords.X].EntitiesOnCell.Add(clonedPlayer);
+                    var player = playerCell.EntitiesOnCell.Find(e => e.GetEntityType() == ActiveEntityType.Player);
+                    Field[playerStartCoords.Y, playerStartCoords.X].EntitiesOnCell.Add(player);
                     playerCell.EntitiesOnCell.RemoveAll(e => e is PlayerEntity);
                     changedCells.Add((playerStartCoords, Field[playerStartCoords.Y, playerStartCoords.X]));
                     PlayerCoords = playerStartCoords;
 
-                    GameRender.DrawLives(clonedPlayer.Lives, Field.GetLength(0));
+                    GameRender.DrawLives(player.Lives, Field.GetLength(0));
                     GameRender.DrawChanges(changedCells);
 
-                    if (clonedPlayer.IsDead())
+                    if (player.IsDead())
                     {
                         Timer.StopTimer();
                         IsGameOver = true;
@@ -133,7 +131,7 @@ public class GameProcess
                     else
                     {
                         GameRender.DrawChanges(changedCells);
-                        GameRender.DrawLives(clonedPlayer.Lives, Field.GetLength(0));
+                        GameRender.DrawLives(player.Lives, Field.GetLength(0));
                     }
                 }
             }
@@ -262,7 +260,6 @@ public class GameProcess
                         var enemiesToRemove = new List<ActiveEntity>();
                         foreach (var entity in cell.EntitiesOnCell)
                         {
-                            //entity.MinusLiveEntity();
                             GameRender.DrawLives(entity.Lives, Field.GetLength(0));
 
                             if (entity.IsDead())

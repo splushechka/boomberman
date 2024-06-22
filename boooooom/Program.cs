@@ -67,7 +67,7 @@ public class Program
                     var result = GameLoop(_levels[currentLevel]);
                     
                     Console.WriteLine("Select option");
-                    if (result)
+                    if (result && currentLevel != 3)
                     {
                         Console.WriteLine("Press Space to play next level");
                     }
