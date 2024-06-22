@@ -40,24 +40,19 @@ public class EmptyCell : Cell
     }
     public override string GetDrawSymbol()
     {
+        bool hasPlayer = EntitiesOnCell.Any(e => e is PlayerEntity);
+        bool hasBomb = BombOnCell != null;
+        bool hasPrize = PrizeOnCell != null;
+
         foreach (var entity in EntitiesOnCell)
         {
-            if (entity is Enemy)
+            if (entity is Enemy enemy)
             {
-                return ((Enemy)entity).GetDrawSymbol(); // Викликаємо метод GetDrawSymbol() ворога
+                return enemy.GetDrawSymbol(); // Викликаємо метод GetDrawSymbol ворога
             }
-        
-            else if (entity is PlayerEntity && BombOnCell != null)
+            else if (entity is PlayerEntity playerEntity)
             {
-                return "🙀"; // Символ переляканого котика, коли котик на одній клітинці з бомбою
-            }
-            else if (entity is PlayerEntity && IsAffectedByExplosion)
-            {
-                return "😿"; // Смайлик печалі, коли гравець знаходиться на одній клітині з ворогом
-            }
-            else if (entity is PlayerEntity)
-            {
-                return "😸"; // Фігурка котика, коли гравець на клітинці
+                return playerEntity.GetDrawSymbol(hasBomb, hasPrize, IsAffectedByExplosion); // Викликаємо метод GetDrawSymbol гравця
             }
         }
 

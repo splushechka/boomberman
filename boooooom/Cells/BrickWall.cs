@@ -12,46 +12,12 @@ public class BrickWall : Wall
 
     public override string GetDrawSymbol()
     {
-        bool hasPlayer = EntitiesOnCell.Any(e => e is PlayerEntity);
-        bool hasBomb = BombOnCell != null;
-        bool hasMultipleEnemies = EntitiesOnCell.Count(e => e is Enemy) > 1;
-
-        if (hasMultipleEnemies)
+        if (IsDestroyed)
         {
-            return "⚔️"; // Символ для випадку, коли два вороги на одній клітинці
+            // Після руйнування стіни відображення буде керуватися класом EmptyCell
+            return "..";
         }
-        else if (IsDestroyed && hasPlayer && hasBomb)
-        {
-            return "🙀"; // Переляканий котик
-        }
-        else if (IsDestroyed && hasBomb)
-        {
-            return "💣"; // Символ для бомби на зруйнованій стіні
-        }
-        else if (IsDestroyed && hasPlayer && PrizeOnCell != null)
-        {
-            return "😻"; // Закоханий котик тільки якщо це гравець
-        }
-        else if (IsDestroyed && hasPlayer)
-        {
-            return "😸"; // Котик
-        }
-        else if (IsDestroyed && PrizeOnCell != null)
-        {
-            return PrizeOnCell.GetDrawSymbol();
-        }
-        else if (IsDestroyed && EntitiesOnCell.Any(e => e is Enemy)) // Перевірка наявності ворогів на клітинці
-        {
-            return (EntitiesOnCell.First(e => e is Enemy) as Enemy).GetDrawSymbol(); // Відображення символу ворога
-        }
-        else if (IsDestroyed && EntitiesOnCell.Count == 0)
-        {
-            return ".."; // Порожній символ, якщо приза немає
-        }
-        else
-        {
-            return "\U0001f9f1"; // Стіна
-        }
+        return "\U0001f9f1"; // Символ стіни
     }
 
     public override bool HasPrize(out int prizeValue)
@@ -77,10 +43,32 @@ public class BrickWall : Wall
     {
         return true;
     }
-
     public override void ExplodeCell(Cell[,] field)
     {
         base.ExplodeCell(field);
         IsDestroyed = true;
+        ConvertToEmptyCell(field);
+    }
+    private void ConvertToEmptyCell(Cell[,] field)
+    {
+        for (int y = 0; y < field.GetLength(0); y++)
+        {
+            for (int x = 0; x < field.GetLength(1); x++)
+            {
+                if (field[y, x] == this)
+                {
+                    var emptyCell = new EmptyCell
+                    {
+                        EntitiesOnCell = this.EntitiesOnCell,
+                        BombOnCell = this.BombOnCell,
+                        PrizeOnCell = this.PrizeOnCell,
+                        IsAffectedByExplosion = this.IsAffectedByExplosion
+                    };
+
+                    field[y, x] = emptyCell;
+                    return;
+                }
+            }
+        }
     }
 }
